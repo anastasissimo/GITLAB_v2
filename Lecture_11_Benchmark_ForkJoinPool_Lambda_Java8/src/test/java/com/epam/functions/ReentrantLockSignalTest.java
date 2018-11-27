@@ -98,7 +98,7 @@ public class ReentrantLockSignalTest {
 
     /**
      * Test on the ReentrantLock usage with await() operation instead of object.wait() in critical section
-     * // TODO: Fix the CounterTest#run method only (look into finally block)
+     * // : Fix the CounterTest#run method only (look into finally block)
      */
     @Test
     public void testQueue() throws InterruptedException {

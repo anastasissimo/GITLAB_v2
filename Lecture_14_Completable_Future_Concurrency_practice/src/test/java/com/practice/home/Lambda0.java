@@ -10,9 +10,15 @@ public class Lambda0 {
 
     @Test
     public void testTHreadPoolSize() throws InterruptedException {
-        new Thread(() -> {foo();}).start();
-        new Thread(() -> {foo();}).start();
-        new Thread(() -> {foo();}).start();
+        new Thread(() -> {
+            foo();
+        }).start();
+        new Thread(() -> {
+            foo();
+        }).start();
+        new Thread(() -> {
+            foo();
+        }).start();
     }
 
     private ReentrantLock lock = new ReentrantLock();
@@ -32,18 +38,18 @@ public class Lambda0 {
     @Test
     public void testRun() {
         runLater(() -> {
-            System.out.println("Run Before");
-            System.out.println("Run After");
+            System.out.println("Before");
+            System.out.println("After");
         }).run();
     }
 
 
     public Runnable runLater(Runnable runnable) {
         return () -> {
-            // TODO: add output to console
+            // : add output to console
+            System.out.println("Before");
             runnable.run();
-            System.out.println("Run Before");
-            System.out.println("Run After");
+            System.out.println("After");
         };
     }
 

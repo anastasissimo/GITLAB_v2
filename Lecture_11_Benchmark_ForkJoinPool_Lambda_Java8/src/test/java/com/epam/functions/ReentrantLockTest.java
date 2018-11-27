@@ -29,7 +29,7 @@ public class ReentrantLockTest {
 
     /**
      * Test on the ReentrantLock usage with await() operation instead of object.wait() in critical section
-     * // TODO: Fix the CounterTest#run method only
+     * // : Fix the CounterTest#run method only
      */
     @Test
     public void testLock() throws InterruptedException {

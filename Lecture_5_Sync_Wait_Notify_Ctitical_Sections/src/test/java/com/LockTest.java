@@ -37,7 +37,7 @@ public class LockTest {
 
         Utils.sleep(1000);
 
-        // TODO: fix it
+        // : fix it
         assertEquals(2 * 1000, counter);
     }
 }

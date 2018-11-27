@@ -21,7 +21,7 @@ public class Lambda3 {
      */
     @Test
     public void testLambda() throws InterruptedException {
-        // TODO: Get "RESULT" printed in console
+        // : Get "RESULT" printed in console
         AtomicInteger counter = new AtomicInteger(0);
 
         Consumer<AtomicInteger> consumer = (AtomicInteger count) -> {
@@ -30,8 +30,8 @@ public class Lambda3 {
 
         Consumer<AtomicInteger> result = wrap(wrap(wrap(wrap(wrap(consumer)))));
 
-        // TODO: fix it
-        //result.accept();
+        // : fix it
+        result.accept(counter);
 
         assertEquals(1, counter.get());
     }
@@ -43,8 +43,9 @@ public class Lambda3 {
 
     Consumer<AtomicInteger> wrap(Consumer<AtomicInteger> consumer){
         return (AtomicInteger count) -> {
-            // TODO: fix it
-            // consumer.accept();
+            // : fix it
+            consumer.accept(count);
+            print();
         };
     }
 }

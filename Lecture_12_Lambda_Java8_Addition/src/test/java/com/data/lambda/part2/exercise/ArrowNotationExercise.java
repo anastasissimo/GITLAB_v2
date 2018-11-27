@@ -1,6 +1,9 @@
 package com.data.lambda.part2.exercise;
 
 import com.data.Person;
+
+import java.util.function.Predicate;
+
 import org.junit.Test;
 
 import java.util.function.BiFunction;
@@ -14,35 +17,41 @@ public class ArrowNotationExercise {
     @Test
     public void getAge() {
         // Person -> Integer
-        final Function<Person, Integer> getAge = null; // TODO
+        final Function<Person, Integer> getAge = person -> person.getAge(); //
 
         assertEquals(Integer.valueOf(33), getAge.apply(new Person("", "", 33)));
     }
 
     @Test
     public void compareAges() {
-        // TODO use BiPredicate
+        //  use BiPredicate
         // compareAges: (Person, Person) -> boolean
-
-        throw new UnsupportedOperationException("Not implemented");
-        //assertEquals(true, compareAges.test(new Person("a", "b", 22), new Person("c", "d", 22)));
+        final BiPredicate<Person, Person> compareAges = (person, person2) -> person.getAge() == person2.getAge();
+        assertEquals(true, compareAges.test(new Person("a", "b", 22), new Person("c", "d", 22)));
     }
 
-    // TODO
+    //
     // getFullName: Person -> String
 
-    // TODO
+    //
     // ageOfPersonWithTheLongestFullName: (Person -> String) -> (Person, Person) -> int
     //
 
     @Test
     public void getAgeOfPersonWithTheLongestFullName() {
         // Person -> String
-        final Function<Person, String> getFullName = null; // TODO
+        final Function<Person, String> getFullName = person -> person.getFirstName() + person
+                .getLastName(); //
 
         // (Person, Person) -> Integer
-        // TODO use ageOfPersonWithTheLongestFullName(getFullName)
-        final BiFunction<Person, Person, Integer> ageOfPersonWithTheLongestFullName = null;
+        //  use ageOfPersonWithTheLongestFullName(getFullName)
+        final BiFunction<Person, Person, Integer> ageOfPersonWithTheLongestFullName =
+                (person, person2) -> {
+                    if (getFullName.apply(person).length() > getFullName.apply(person2).length()) {
+                        return person.getAge();
+                    }
+                    return person2.getAge();
+                };
 
         assertEquals(
                 Integer.valueOf(1),

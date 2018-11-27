@@ -3,55 +3,120 @@ package com;
 import org.junit.Test;
 import prepare.util.Util;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static org.junit.Assert.assertEquals;
 
-public class ReentrantLockTest {
+public class ReentrantLockSignalTest {
 
-    public static class Counter implements Runnable {
-        ReentrantLock lock = new ReentrantLock();
-        private int count = 0;
+    private static final int OPERS = 10;
+
+    public static class BlockingSyncQueue {
+        private ReentrantLock lock = new ReentrantLock();
+        private Condition readCondition = lock.newCondition();
+        private Condition writeCondition = lock.newCondition();
+
+        private String msg;
+
+        public String readMsg() {
+            lock.lock();
+            try {
+                Util.sleep(10);
+                while (msg == null) {
+                    readCondition.await();
+                }
+                String copy = new String(msg);
+                msg = null;
+                return copy;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } finally {
+                writeCondition.signal();
+                lock.unlock();
+            }
+            return msg;
+        }
+
+        public void writeMsg(String str) {
+            lock.lock();
+            try {
+                Util.sleep(10);
+                while (msg != null) {
+                    writeCondition.await();
+                }
+                this.msg = str;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } finally {
+                readCondition.signal();
+                lock.unlock();
+            }
+        }
+    }
+
+    public static class Consumer implements Runnable {
+        int reads;
+        BlockingSyncQueue syncQueue;
+
+        Collection<String> received = new ArrayList<>();
+
+        public Consumer(int reads, BlockingSyncQueue syncQueue) {
+            this.reads = reads;
+            this.syncQueue = syncQueue;
+        }
 
         @Override
         public void run() {
-            lock.lock();
-            Util.sleep(100);
-            count++;
-            validate();
+            for (int i = 0; i < reads; i++) {
+                final String s = syncQueue.readMsg();
+                received.add(s);
+                System.out.println("Received:" + s);
+            }
+        }
+    }
+
+    public static class Producer implements Runnable {
+        int writes;
+        BlockingSyncQueue syncQueue;
+
+        public Producer(int writes, BlockingSyncQueue syncQueue) {
+            this.writes = writes;
+            this.syncQueue = syncQueue;
         }
 
-        private void validate() {
-            if (count == 2) {
-                throw new RuntimeException();
+        @Override
+        public void run() {
+            for (int i = 0; i < writes; i++) {
+                String s = "Send: " + i;
+                System.out.println(s);
+                syncQueue.writeMsg("Send: " + i);
             }
         }
     }
 
     /**
      * Test on the ReentrantLock usage with await() operation instead of object.wait() in critical section
-     * // TODO: Fix the CounterTest#run method only
+     * //: Fix the CounterTest#run method only (look into finally block)
      */
     @Test
-    public void testLock() throws InterruptedException {
-        Counter count = new Counter();
-        Thread thread1 = new Thread(count);
-        Thread thread2 = new Thread(count);
-        Thread thread3 = new Thread(count);
+    public void testQueue() throws InterruptedException {
+        BlockingSyncQueue queue = new BlockingSyncQueue();
+        Consumer con = new Consumer(OPERS, queue);
+        Thread threadC = new Thread(con);
+        Thread threadP = new Thread(new Producer(OPERS, queue));
 
-        thread1.start();
-        thread2.start();
-        thread3.start();
+        threadC.start();
+        threadP.start();
 //
 //        thread1.join();
 //        thread2.join();
 //        thread3.join();
 //
         Thread.sleep(1000);
-
-        assertEquals(3, count.count);
-
-        System.out.println("Main exit: " + count.count);
+        assertEquals(10, con.received.size());
+//        System.out.println("Main exit: " + count.count);
     }
 }
